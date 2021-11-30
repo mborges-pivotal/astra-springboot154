@@ -1,60 +1,67 @@
 package com.datastax.da.astra;
 
-import java.io.File;
+import com.datastax.da.astra.model.Account;
+import com.datastax.da.astra.model.AccountKey;
+import com.datastax.da.astra.model.Position;
+import com.datastax.da.astra.model.PositionKey;
+import com.datastax.da.astra.repository.AccountRepository;
+import com.datastax.da.astra.repository.PositionRepository;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.Session;
+import java.math.BigDecimal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@EnableConfigurationProperties
 // It was not taking the secure bundle contact points
-@EnableAutoConfiguration(exclude = { CassandraDataAutoConfiguration.class })
+// @EnableAutoConfiguration(exclude = { CassandraDataAutoConfiguration.class })
 public class AstraApplication implements CommandLineRunner {
 
 	/** Logger for the class. */
-	private static Logger LOGGER = LoggerFactory.getLogger(AstraApplication.class);
-
-	// Those are mandatory to connect to ASTRA
-	@Value("${datastax.astra.secure-connect-bundle}")
-	private String ASTRA_ZIP_FILE = "LOCATION_OF_SECURE_BUNDLE_ZIP";
-
-	@Value("${spring.data.cassandra.username}")
-	private String ASTRA_USERNAME = "TOKEN_CLIENT_ID";
-	@Value("${spring.data.cassandra.password}")
-	private String ASTRA_PASSWORD = "TOKEN_CLIENT_SECRET";
-	@Value("${spring.data.cassandra.keyspace-name}")
-	private String ASTRA_KEYSPACE = "YOUR_KEYSPACE";
+	private static final Logger LOGGER = LoggerFactory.getLogger(AstraApplication.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(AstraApplication.class, args);
 	}
 
+	@Autowired
+	private AccountRepository accountRepo;
+
+	@Autowired
+	private PositionRepository positionRepo;
+
 	@Override
 	public void run(String... arg0) throws Exception {
 
-		// Check the cloud zip file
-		File cloudSecureConnectBundleFile = new File(ASTRA_ZIP_FILE);
-		if (!cloudSecureConnectBundleFile.exists()) {
-			throw new IllegalStateException("File '" + ASTRA_ZIP_FILE + "' has not been found\n"
-					+ "To run this sample you need to download the secure bundle file from ASTRA WebPage\n"
-					+ "More info here:");
+		AccountKey ak1 = new AccountKey("mborges", "002");
+		Account a1 = new Account(ak1, BigDecimal.ZERO, "Marcelo Borges");
+
+		Account ar1 = accountRepo.findOne(ak1);
+		if (ar1 != null) {
+			LOGGER.info("Account key {} found", ar1);
+		} else {
+			ar1 = accountRepo.save(a1);
+			LOGGER.info("Saved account {}", ar1);
 		}
 
-		// Connect
-		try (Cluster cluster = Cluster.builder().withCloudSecureConnectBundle(cloudSecureConnectBundleFile)
-				.withCredentials(ASTRA_USERNAME, ASTRA_PASSWORD).build()) {
-			Session session = cluster.connect(ASTRA_KEYSPACE);
-			LOGGER.info("[OK] Welcome to ASTRA. Connected to Keyspace {}", session.getLoggedKeyspace());
+		PositionKey pk1 = new PositionKey("001", "SNAP");
+		Position p1 = new Position(pk1, BigDecimal.valueOf(50));
+
+		Position pr1 = positionRepo.findOne(pk1);
+		if (pr1 != null) {
+			LOGGER.info("Position key {} found", pr1);
+		} else {
+			pr1 = positionRepo.save(p1);
+			LOGGER.info("Saved position {}", pr1);
 		}
-		LOGGER.info("[OK] Success");
+
+
 	}
 
 }
