@@ -29,10 +29,10 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
  */
 @Configuration
 @EnableCassandraRepositories(basePackages = { "com.datastax.da.astra.repository" })
-public class AastraConfig {
+public class AstraConfig {
 
     /** Logger for the class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AastraConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AstraConfig.class);
 
     /*
      * We externalize the configuration and manage the loading so they can be used

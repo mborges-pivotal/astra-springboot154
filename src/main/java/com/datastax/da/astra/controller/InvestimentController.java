@@ -9,10 +9,14 @@ import com.datastax.da.astra.model.Account;
 import com.datastax.da.astra.model.Position;
 import com.datastax.da.astra.model.Trade;
 import com.datastax.da.astra.model.trade.TradeD;
-import com.datastax.da.astra.model.trade.TradeKey;
+import com.datastax.da.astra.model.trade.TradeSD;
+import com.datastax.da.astra.model.trade.TradeSymbolKey;
+import com.datastax.da.astra.model.trade.TradeTD;
 import com.datastax.da.astra.repository.AccountRepository;
 import com.datastax.da.astra.repository.PositionRepository;
 import com.datastax.da.astra.repository.TradeDRepository;
+import com.datastax.da.astra.repository.TradeSDRepository;
+import com.datastax.da.astra.repository.TradeTDRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +24,32 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTrade;
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeD;
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeSD;
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeTD;
 
 @RestController
 public class InvestimentController {
 
     @Autowired
-	private AccountRepository accountRepo;
+    private AccountRepository accountRepo;
 
-	@Autowired
-	private PositionRepository positionRepo;
+    @Autowired
+    private PositionRepository positionRepo;
 
-	@Autowired
-	private TradeDRepository tradeDRepo;
+    @Autowired
+    private TradeDRepository tradeDRepo;
 
-    
+    @Autowired
+    private TradeSDRepository tradeSDRepo;
+
+    @Autowired
+    private TradeTDRepository tradeTDRepo;
+
     @RequestMapping(value = "/accounts/{username}", method = RequestMethod.GET)
     public List<Account> listAccounts(@PathVariable("username") String userName) {
         return accountRepo.findByKeyUserName(userName);
@@ -46,58 +61,42 @@ public class InvestimentController {
     }
 
     ////////////////////////////////
-    // Trades by Date
+    // Trades
     ////////////////////////////////
 
     @RequestMapping(value = "/trades/{account}", method = RequestMethod.GET)
-    public List<Trade> listTradesByAccount(@PathVariable String account)  {
-        
-        List<TradeD> trades = tradeDRepo.findByKeyAccount(account);
+    public List<Trade> listTradesByAccount(@PathVariable String account, @RequestParam(required = false) String symbol,
+            @RequestParam(required = false) String type) {
 
-        List<Trade> resultTrades = new ArrayList<>();
-        for(TradeD t: trades) {
-            resultTrades.add(mapAsTrade(t));
+        // passed symbol
+        if (symbol != null) {
+            List<TradeSD> trades = tradeSDRepo.findByKeyAccountAndKeySymbol(account, symbol);
+            return mapAsTradeSD(trades);
         }
 
-        return resultTrades;
-        
+        // passed type
+        if (type != null) {
+            List<TradeTD> trades = tradeTDRepo.findByKeyAccountAndKeyType(account, type);
+            return mapAsTradeTD(trades);
+        }
+
+        // Just account
+        List<TradeD> trades = tradeDRepo.findByKeyAccount(account);
+        return mapAsTradeD(trades);
+
     }
-    
-    @RequestMapping(value = "/trades/{account}", method=RequestMethod.POST)
+
+    // CREATE A TRADE
+
+    @RequestMapping(value = "/trades/{account}", method = RequestMethod.POST)
     public ResponseEntity<Trade> create(HttpServletRequest req, @RequestBody Trade trade) {
-        TradeD t = mapAsTradeD(trade);
-        tradeDRepo.save(t);
+
+        // MMB - Review the best way to ingest data here.
+        tradeDRepo.save(mapAsTradeD(trade));
+        tradeSDRepo.save(mapAsTradeSD(trade));
+        tradeTDRepo.save(mapAsTradeTD(trade));
+
         return ResponseEntity.accepted().body(trade);
     }
 
-    //////////////////////////////
-    // Heloer Methods
-    //////////////////////////////
-
-    private static TradeD mapAsTradeD(Trade t) {
-        TradeKey key = new TradeKey(t.getAccount(), t.getTradeId());
-        TradeD trade = new TradeD();
-        trade.setKey(key);
-        trade.setAmount(t.getAmount());
-        trade.setPrice(t.getPrice());
-        trade.setShares(t.getShares());
-        trade.setSymbol(t.getSymbol());
-        trade.setType(t.getType());
-        return trade;
-    }
-
-    private static Trade mapAsTrade(TradeD t) {
-        Trade trade = new Trade();
-        trade.setAccount(t.getKey().getAccount());
-        trade.setAmount(t.getAmount());
-        trade.setPrice(t.getPrice());
-        trade.setShares(t.getShares());
-        trade.setSymbol(t.getSymbol());
-        trade.setType(t.getType());
-        trade.setTradeId(t.getKey().getTradeId());
-        return trade;
-    }
-
-
-    
 }

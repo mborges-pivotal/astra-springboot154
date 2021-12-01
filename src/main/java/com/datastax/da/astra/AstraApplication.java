@@ -4,11 +4,12 @@ import com.datastax.da.astra.model.Account;
 import com.datastax.da.astra.model.AccountKey;
 import com.datastax.da.astra.model.Position;
 import com.datastax.da.astra.model.PositionKey;
-import com.datastax.da.astra.model.trade.TradeD;
-import com.datastax.da.astra.model.trade.TradeKey;
+import com.datastax.da.astra.model.Trade;
 import com.datastax.da.astra.repository.AccountRepository;
 import com.datastax.da.astra.repository.PositionRepository;
 import com.datastax.da.astra.repository.TradeDRepository;
+import com.datastax.da.astra.repository.TradeSDRepository;
+import com.datastax.da.astra.repository.TradeTDRepository;
 import com.datastax.driver.core.utils.UUIDs;
 
 import java.math.BigDecimal;
@@ -20,6 +21,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeD;
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeSD;
+import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeTD;
 
 @SpringBootApplication
 @EnableConfigurationProperties
@@ -42,6 +47,12 @@ public class AstraApplication implements CommandLineRunner {
 
 	@Autowired
 	private TradeDRepository tradeDRepo;
+
+	@Autowired
+	private TradeSDRepository tradeSDRepo;
+
+	@Autowired
+	private TradeTDRepository tradeTDRepo;
 
 	@Override
 	public void run(String... arg0) throws Exception {
@@ -68,16 +79,21 @@ public class AstraApplication implements CommandLineRunner {
 			LOGGER.info("Saved position {}", pr1);
 		}
 
-		TradeKey tk1 = new TradeKey("001",  UUIDs.timeBased());
-		TradeD t1 = new TradeD();
-		t1.setKey(tk1);
+		// Trade ingestion needs to be synchronized across 3 tables
+
+		Trade t1 = new Trade();
 		t1.setPrice(BigDecimal.valueOf(144L));
 		t1.setShares(BigDecimal.TEN);
 		t1.setAmount(t1.getShares().multiply(t1.getPrice()));
 		t1.setSymbol("SNAP");
 		t1.setType("buy");
-		tradeDRepo.save(t1);
+		t1.setAccount("001");
+		t1.setTradeId(UUIDs.timeBased());
 
+		// MMB - Review the best way to ingest data here.
+		tradeDRepo.save(mapAsTradeD(t1));
+		tradeSDRepo.save(mapAsTradeSD(t1));
+		tradeTDRepo.save(mapAsTradeTD(t1));
 
 	}
 
