@@ -21,15 +21,23 @@ import org.springframework.data.cassandra.mapping.SimpleUserTypeResolver;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
 /**
+ * Taking over the Cassandra Configuration from the Spring Boot Data Cassandra
+ * started so we can use the latest driver with the properties to connect to
+ * Astra
+ * 
  * @see https://docs.spring.io/spring-data/cassandra/docs/1.5.4.RELEASE/reference/html/
  */
 @Configuration
 @EnableCassandraRepositories(basePackages = { "com.datastax.da.astra.repository" })
-public class AppConfig {
+public class AastraConfig {
 
     /** Logger for the class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfig.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AastraConfig.class);
 
+    /*
+     * We externalize the configuration and manage the loading so they can be used
+     * by the Spring Beans below
+     */
     @Autowired
     private AstraProperties props;
 
@@ -56,7 +64,7 @@ public class AppConfig {
      * Use the standard Cassandra driver API to create a
      * com.datastax.driver.core.Session instance.
      */
-    @Bean 
+    @Bean
     public CassandraSessionFactoryBean session() {
         CassandraSessionFactoryBean session = new CassandraSessionFactoryBean();
         session.setCluster(cluster());
@@ -69,7 +77,7 @@ public class AppConfig {
 
     @Bean
     public CassandraOperations cassandraTemplate() throws Exception {
-      return new CassandraTemplate(session().getObject());
+        return new CassandraTemplate(session().getObject());
     }
 
     @Bean
@@ -85,4 +93,3 @@ public class AppConfig {
     }
 
 }
-
