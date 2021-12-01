@@ -4,8 +4,12 @@ import com.datastax.da.astra.model.Account;
 import com.datastax.da.astra.model.AccountKey;
 import com.datastax.da.astra.model.Position;
 import com.datastax.da.astra.model.PositionKey;
+import com.datastax.da.astra.model.trade.TradeD;
+import com.datastax.da.astra.model.trade.TradeKey;
 import com.datastax.da.astra.repository.AccountRepository;
 import com.datastax.da.astra.repository.PositionRepository;
+import com.datastax.da.astra.repository.TradeDRepository;
+import com.datastax.driver.core.utils.UUIDs;
 
 import java.math.BigDecimal;
 
@@ -36,6 +40,9 @@ public class AstraApplication implements CommandLineRunner {
 	@Autowired
 	private PositionRepository positionRepo;
 
+	@Autowired
+	private TradeDRepository tradeDRepo;
+
 	@Override
 	public void run(String... arg0) throws Exception {
 
@@ -60,6 +67,16 @@ public class AstraApplication implements CommandLineRunner {
 			pr1 = positionRepo.save(p1);
 			LOGGER.info("Saved position {}", pr1);
 		}
+
+		TradeKey tk1 = new TradeKey("001",  UUIDs.timeBased());
+		TradeD t1 = new TradeD();
+		t1.setKey(tk1);
+		t1.setPrice(BigDecimal.valueOf(144L));
+		t1.setShares(BigDecimal.TEN);
+		t1.setAmount(t1.getShares().multiply(t1.getPrice()));
+		t1.setSymbol("SNAP");
+		t1.setType("buy");
+		tradeDRepo.save(t1);
 
 
 	}

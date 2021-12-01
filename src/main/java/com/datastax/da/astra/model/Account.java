@@ -3,7 +3,6 @@ package com.datastax.da.astra.model;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.mapping.Column;
 import org.springframework.data.cassandra.mapping.PrimaryKey;
 import org.springframework.data.cassandra.mapping.Table;
