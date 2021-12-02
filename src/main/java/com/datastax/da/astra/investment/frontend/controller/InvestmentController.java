@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.datastax.da.astra.investment.backend.controller.InvestmentApiController;
 import com.datastax.da.astra.investment.backend.model.Trade;
+import com.datastax.da.astra.investment.frontend.service.MarketStackService;
 import com.datastax.driver.core.utils.UUIDs;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
  * 
  * - Remove Cassandra driver dependencies. E.g UUIDs utility
  * - We need our own model. E.g. Trade object
+ * 
+ * market api references: https://geekflare.com/best-stock-market-api/
+ * 
  */
 @Controller
 public class InvestmentController {
@@ -25,6 +29,8 @@ public class InvestmentController {
     @Autowired
     private InvestmentApiController api;
 
+    @Autowired
+    private MarketStackService marketApi;
 
     @GetMapping("/home")
     public String tradePage(Model model) {
@@ -37,6 +43,9 @@ public class InvestmentController {
       model.addAttribute("trade", trade);
       trade.setTradeId(UUIDs.timeBased());
       api.insertTrade(request, trade);
+
+      System.out.println(marketApi.price(trade.getSymbol()));
+
       return "home";
     }
 
