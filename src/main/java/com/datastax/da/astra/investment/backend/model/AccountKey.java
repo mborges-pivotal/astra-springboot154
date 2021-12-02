@@ -1,4 +1,4 @@
-package com.datastax.da.astra.model;
+package com.datastax.da.astra.investment.backend.model;
 
 import java.io.Serializable;
 import java.util.Objects;

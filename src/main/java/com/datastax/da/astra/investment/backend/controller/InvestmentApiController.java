@@ -1,22 +1,24 @@
-package com.datastax.da.astra.controller;
+package com.datastax.da.astra.investment.backend.controller;
 
-import java.util.ArrayList;
+import static com.datastax.da.astra.investment.backend.model.trade.TradeUtilities.mapAsTradeD;
+import static com.datastax.da.astra.investment.backend.model.trade.TradeUtilities.mapAsTradeSD;
+import static com.datastax.da.astra.investment.backend.model.trade.TradeUtilities.mapAsTradeTD;
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.datastax.da.astra.model.Account;
-import com.datastax.da.astra.model.Position;
-import com.datastax.da.astra.model.Trade;
-import com.datastax.da.astra.model.trade.TradeD;
-import com.datastax.da.astra.model.trade.TradeSD;
-import com.datastax.da.astra.model.trade.TradeSymbolKey;
-import com.datastax.da.astra.model.trade.TradeTD;
-import com.datastax.da.astra.repository.AccountRepository;
-import com.datastax.da.astra.repository.PositionRepository;
-import com.datastax.da.astra.repository.TradeDRepository;
-import com.datastax.da.astra.repository.TradeSDRepository;
-import com.datastax.da.astra.repository.TradeTDRepository;
+import com.datastax.da.astra.investment.backend.model.Account;
+import com.datastax.da.astra.investment.backend.model.Position;
+import com.datastax.da.astra.investment.backend.model.Trade;
+import com.datastax.da.astra.investment.backend.model.trade.TradeD;
+import com.datastax.da.astra.investment.backend.model.trade.TradeSD;
+import com.datastax.da.astra.investment.backend.model.trade.TradeTD;
+import com.datastax.da.astra.investment.backend.repository.AccountRepository;
+import com.datastax.da.astra.investment.backend.repository.PositionRepository;
+import com.datastax.da.astra.investment.backend.repository.TradeDRepository;
+import com.datastax.da.astra.investment.backend.repository.TradeSDRepository;
+import com.datastax.da.astra.investment.backend.repository.TradeTDRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTrade;
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeD;
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeSD;
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeTD;
-
 @RestController
-public class InvestimentController {
+@RequestMapping("/api")
+public class InvestmentApiController {
 
     @Autowired
     private AccountRepository accountRepo;
@@ -88,8 +86,8 @@ public class InvestimentController {
 
     // CREATE A TRADE
 
-    @RequestMapping(value = "/trades/{account}", method = RequestMethod.POST)
-    public ResponseEntity<Trade> create(HttpServletRequest req, @RequestBody Trade trade) {
+    @RequestMapping(value = "/trades/{account}", method = RequestMethod.PUT)
+    public ResponseEntity<Trade> insertTrade(HttpServletRequest req, @RequestBody Trade trade) {
 
         // MMB - Review the best way to ingest data here.
         tradeDRepo.save(mapAsTradeD(trade));

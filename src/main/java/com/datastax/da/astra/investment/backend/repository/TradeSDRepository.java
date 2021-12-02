@@ -1,9 +1,9 @@
-package com.datastax.da.astra.repository;
+package com.datastax.da.astra.investment.backend.repository;
 
 import java.util.List;
 
-import com.datastax.da.astra.model.trade.TradeSD;
-import com.datastax.da.astra.model.trade.TradeSymbolKey;
+import com.datastax.da.astra.investment.backend.model.trade.TradeSD;
+import com.datastax.da.astra.investment.backend.model.trade.TradeSymbolKey;
 
 import org.springframework.data.repository.CrudRepository;
 

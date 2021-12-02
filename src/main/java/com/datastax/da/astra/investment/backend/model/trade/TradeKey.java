@@ -1,35 +1,30 @@
-package com.datastax.da.astra.model.trade;
+package com.datastax.da.astra.investment.backend.model.trade;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
-
 import org.springframework.cassandra.core.Ordering;
+
 import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.PrimaryKeyClass;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 
 @PrimaryKeyClass
-public class TradeTypeKey implements Serializable {
+public class TradeKey implements Serializable {
 
     @PrimaryKeyColumn(name = "account", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String account;
 
-    @PrimaryKeyColumn(name = "type", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.ASCENDING)
-    private String type;
-
-    @PrimaryKeyColumn(name = "trade_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "trade_id", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     private UUID tradeId;
 
-    // All args constructor
-    public TradeTypeKey(String account, String type, UUID tradeId) {
+    // All Args Constructor
+    public TradeKey(String account, UUID tradeId) {
         this.account = account;
-        this.type = type;
         this.tradeId = tradeId;
     }
 
     // Accessor methods
-
 
     public String getAccount() {
         return this.account;
@@ -37,14 +32,6 @@ public class TradeTypeKey implements Serializable {
 
     public void setAccount(String account) {
         this.account = account;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public UUID getTradeId() {
@@ -55,33 +42,34 @@ public class TradeTypeKey implements Serializable {
         this.tradeId = tradeId;
     }
 
-    // Object methods
+    // Object Methods
 
 
     @Override
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof TradeTypeKey)) {
+        if (!(o instanceof TradeKey)) {
             return false;
         }
-        TradeTypeKey tradeTypeKey = (TradeTypeKey) o;
-        return Objects.equals(account, tradeTypeKey.account) && Objects.equals(type, tradeTypeKey.type) && Objects.equals(tradeId, tradeTypeKey.tradeId);
+        TradeKey tradeKey = (TradeKey) o;
+        return Objects.equals(account, tradeKey.account) && Objects.equals(tradeId, tradeKey.tradeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(account, type, tradeId);
+        return Objects.hash(account, tradeId);
     }
 
     @Override
     public String toString() {
         return "{" +
             " account='" + getAccount() + "'" +
-            ", type='" + getType() + "'" +
             ", tradeId='" + getTradeId() + "'" +
             "}";
     }
 
+
+
+
 }
-    

@@ -1,16 +1,20 @@
-package com.datastax.da.astra;
+package com.datastax.da.astra.investment;
 
-import com.datastax.da.astra.model.Account;
-import com.datastax.da.astra.model.AccountKey;
-import com.datastax.da.astra.model.Position;
-import com.datastax.da.astra.model.PositionKey;
-import com.datastax.da.astra.model.Trade;
-import com.datastax.da.astra.repository.AccountRepository;
-import com.datastax.da.astra.repository.PositionRepository;
-import com.datastax.da.astra.repository.TradeDRepository;
-import com.datastax.da.astra.repository.TradeSDRepository;
-import com.datastax.da.astra.repository.TradeTDRepository;
+import com.datastax.da.astra.investment.backend.model.Account;
+import com.datastax.da.astra.investment.backend.model.AccountKey;
+import com.datastax.da.astra.investment.backend.model.Position;
+import com.datastax.da.astra.investment.backend.model.PositionKey;
+import com.datastax.da.astra.investment.backend.model.Trade;
+import com.datastax.da.astra.investment.backend.repository.AccountRepository;
+import com.datastax.da.astra.investment.backend.repository.PositionRepository;
+import com.datastax.da.astra.investment.backend.repository.TradeDRepository;
+import com.datastax.da.astra.investment.backend.repository.TradeSDRepository;
+import com.datastax.da.astra.investment.backend.repository.TradeTDRepository;
 import com.datastax.driver.core.utils.UUIDs;
+
+import static com.datastax.da.astra.investment.backend.model.trade.TradeUtilities.mapAsTradeD;
+import static com.datastax.da.astra.investment.backend.model.trade.TradeUtilities.mapAsTradeSD;
+import static com.datastax.da.astra.investment.backend.model.trade.TradeUtilities.mapAsTradeTD;
 
 import java.math.BigDecimal;
 
@@ -21,10 +25,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeD;
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeSD;
-import static com.datastax.da.astra.model.trade.TradeUtilities.mapAsTradeTD;
 
 @SpringBootApplication
 @EnableConfigurationProperties

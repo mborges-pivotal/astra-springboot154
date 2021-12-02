@@ -1,4 +1,4 @@
-package com.datastax.da.astra.model.trade;
+package com.datastax.da.astra.investment.backend.model.trade;
 
 import java.math.BigDecimal;
 import java.util.Objects;

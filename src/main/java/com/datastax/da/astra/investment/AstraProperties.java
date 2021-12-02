@@ -1,4 +1,4 @@
-package com.datastax.da.astra;
+package com.datastax.da.astra.investment;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

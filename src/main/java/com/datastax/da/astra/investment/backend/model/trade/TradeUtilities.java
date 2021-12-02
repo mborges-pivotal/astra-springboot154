@@ -1,9 +1,9 @@
-package com.datastax.da.astra.model.trade;
+package com.datastax.da.astra.investment.backend.model.trade;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.datastax.da.astra.model.Trade;
+import com.datastax.da.astra.investment.backend.model.Trade;
 
 /**
  * TradeUtilities - This is mostly to help map a Trade object to the various

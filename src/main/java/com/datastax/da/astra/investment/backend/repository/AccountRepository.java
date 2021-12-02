@@ -1,9 +1,9 @@
-package com.datastax.da.astra.repository;
+package com.datastax.da.astra.investment.backend.repository;
 
 import java.util.List;
 
-import com.datastax.da.astra.model.Account;
-import com.datastax.da.astra.model.AccountKey;
+import com.datastax.da.astra.investment.backend.model.Account;
+import com.datastax.da.astra.investment.backend.model.AccountKey;
 
 import org.springframework.data.repository.CrudRepository;
 

@@ -1,4 +1,4 @@
-package com.datastax.da.astra;
+package com.datastax.da.astra.investment;
 
 import java.io.File;
 

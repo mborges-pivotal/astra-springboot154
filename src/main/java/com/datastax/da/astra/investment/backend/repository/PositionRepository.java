@@ -1,9 +1,9 @@
-package com.datastax.da.astra.repository;
+package com.datastax.da.astra.investment.backend.repository;
 
 import java.util.List;
 
-import com.datastax.da.astra.model.Position;
-import com.datastax.da.astra.model.PositionKey;
+import com.datastax.da.astra.investment.backend.model.Position;
+import com.datastax.da.astra.investment.backend.model.PositionKey;
 
 import org.springframework.data.repository.CrudRepository;
 

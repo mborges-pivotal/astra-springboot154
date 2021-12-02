@@ -1,26 +1,30 @@
-package com.datastax.da.astra.model.trade;
+package com.datastax.da.astra.investment.backend.model.trade;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
-import org.springframework.cassandra.core.Ordering;
 
+import org.springframework.cassandra.core.Ordering;
 import org.springframework.cassandra.core.PrimaryKeyType;
 import org.springframework.data.cassandra.mapping.PrimaryKeyClass;
 import org.springframework.data.cassandra.mapping.PrimaryKeyColumn;
 
 @PrimaryKeyClass
-public class TradeKey implements Serializable {
+public class TradeSymbolKey implements Serializable {
 
     @PrimaryKeyColumn(name = "account", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String account;
 
-    @PrimaryKeyColumn(name = "trade_id", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "symbol", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.ASCENDING)
+    private String symbol;
+
+    @PrimaryKeyColumn(name = "trade_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     private UUID tradeId;
 
-    // All Args Constructor
-    public TradeKey(String account, UUID tradeId) {
+    // All args constructor
+    public TradeSymbolKey(String account, String symbol, UUID tradeId) {
         this.account = account;
+        this.symbol = symbol;
         this.tradeId = tradeId;
     }
 
@@ -32,6 +36,14 @@ public class TradeKey implements Serializable {
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public String getSymbol() {
+        return this.symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public UUID getTradeId() {
@@ -49,27 +61,27 @@ public class TradeKey implements Serializable {
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof TradeKey)) {
+        if (!(o instanceof TradeSymbolKey)) {
             return false;
         }
-        TradeKey tradeKey = (TradeKey) o;
-        return Objects.equals(account, tradeKey.account) && Objects.equals(tradeId, tradeKey.tradeId);
+        TradeSymbolKey tradeSymbolKey = (TradeSymbolKey) o;
+        return Objects.equals(account, tradeSymbolKey.account) && Objects.equals(symbol, tradeSymbolKey.symbol) && Objects.equals(tradeId, tradeSymbolKey.tradeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(account, tradeId);
+        return Objects.hash(account, symbol, tradeId);
     }
 
     @Override
     public String toString() {
         return "{" +
             " account='" + getAccount() + "'" +
+            ", symbol='" + getSymbol() + "'" +
             ", tradeId='" + getTradeId() + "'" +
             "}";
     }
 
 
-
-
+    
 }
