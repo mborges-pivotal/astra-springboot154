@@ -22,8 +22,12 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 
 /**
  * Taking over the Cassandra Configuration from the Spring Boot Data Cassandra
- * started so we can use the latest driver with the properties to connect to
- * Astra
+ * starter so we can use a more recent latest driver with the properties to connect to
+ * Astra. The driver that comes with Spring Boot 1.5.4 (circa 2017) doesn't support Astra.
+ * 
+ * This effective turns off the CassandraAutoConfiguration. The bean "Cluster"
+ * allows us to take control over how the Cassandra driver is configure so we
+ * can connect to Astra using the secure bundled and token credentials. 
  * 
  * @see https://docs.spring.io/spring-data/cassandra/docs/1.5.4.RELEASE/reference/html/
  */
