@@ -33,7 +33,7 @@ Look at the POM file where we overwrite the driver version shown below:
 		</dependency>
 ```        
 
-Then we create our own spring configuration class for Cassandra to work with the new driver. We don't need to extend the helper class AbstractCassandraConfiguration. See [AstraConfig class](/src/main/java/com/datastax/da/astra/AstraConfig.java). 
+Then we create our own spring configuration class for Cassandra to work with the new driver. We don't need to extend the helper class AbstractCassandraConfiguration. See [AstraConfig class](/src/main/java/com/datastax/da/astra/investment/AstraConfig.java). 
 
 We also created a @ConfigurationProperties to externalize the properties used by the AstraConfig class and help load the properties in the order required to create the spring beans. 
 
