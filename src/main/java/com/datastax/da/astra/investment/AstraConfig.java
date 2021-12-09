@@ -74,6 +74,9 @@ public class AstraConfig {
                 // InputStream inputStream = resource.getInputStream();
 
                 InputStream stream = this.getClass().getClassLoader().getResourceAsStream("secure-connect-bundle.zip");
+                if (stream == null) {
+                    new Error("Bundle inputstream is null - Maybe it was not found in the 'resources' folder");
+                }
 
                 // Connect
                 cluster = Cluster.builder().withCloudSecureConnectBundle(stream)
