@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+// import org.springframework.core.io.Resource;
+// import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.convert.CassandraConverter;
@@ -24,7 +24,7 @@ import org.springframework.data.cassandra.mapping.BasicCassandraMappingContext;
 import org.springframework.data.cassandra.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.mapping.SimpleUserTypeResolver;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
-import org.springframework.util.ResourceUtils;
+// import org.springframework.util.ResourceUtils;
 
 /**
  * Taking over the Cassandra Configuration from the Spring Boot Data Cassandra
@@ -53,8 +53,8 @@ public class AstraConfig {
     @Autowired
     private AstraProperties props;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+    // @Autowired
+    // private ResourceLoader resourceLoader;
 
     @Bean
     public Cluster cluster() {
@@ -70,11 +70,13 @@ public class AstraConfig {
                 // cloudSecureConnectBundleFile =
                 // ResourceUtils.getFile("classpath:secure-connect-bundle.zip");
 
-                Resource resource = resourceLoader.getResource("classpath:secure-connect-bundle.zip");
-                InputStream inputStream = resource.getInputStream();
+                // Resource resource = resourceLoader.getResource("classpath:secure-connect-bundle.zip");
+                // InputStream inputStream = resource.getInputStream();
+
+                InputStream stream = this.getClass().getClassLoader().getResourceAsStream("secure-connect-bundle.zip");
 
                 // Connect
-                cluster = Cluster.builder().withCloudSecureConnectBundle(inputStream)
+                cluster = Cluster.builder().withCloudSecureConnectBundle(stream)
                         .withCredentials(props.getUsername(), props.getPassword()).build();
 
             } catch (Exception e) {
