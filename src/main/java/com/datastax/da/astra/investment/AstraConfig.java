@@ -1,6 +1,9 @@
 package com.datastax.da.astra.investment;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import com.datastax.driver.core.Cluster;
 
@@ -19,15 +22,18 @@ import org.springframework.data.cassandra.mapping.BasicCassandraMappingContext;
 import org.springframework.data.cassandra.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.mapping.SimpleUserTypeResolver;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
+import org.springframework.util.ResourceUtils;
 
 /**
  * Taking over the Cassandra Configuration from the Spring Boot Data Cassandra
- * starter so we can use a more recent latest driver with the properties to connect to
- * Astra. The driver that comes with Spring Boot 1.5.4 (circa 2017) doesn't support Astra.
+ * starter so we can use a more recent latest driver with the properties to
+ * connect to
+ * Astra. The driver that comes with Spring Boot 1.5.4 (circa 2017) doesn't
+ * support Astra.
  * 
  * This effective turns off the CassandraAutoConfiguration. The bean "Cluster"
  * allows us to take control over how the Cassandra driver is configure so we
- * can connect to Astra using the secure bundled and token credentials. 
+ * can connect to Astra using the secure bundled and token credentials.
  * 
  * @see https://docs.spring.io/spring-data/cassandra/docs/1.5.4.RELEASE/reference/html/
  */
@@ -49,16 +55,36 @@ public class AstraConfig {
     public Cluster cluster() {
 
         // Check the cloud zip file
-        File cloudSecureConnectBundleFile = new File(props.getBundle());
-        if (!cloudSecureConnectBundleFile.exists()) {
-            throw new IllegalStateException("File '" + props.getBundle() + "' has not been found\n"
-                    + "To run this sample you need to download the secure bundle file from ASTRA WebPage\n"
-                    + "More info here:");
+
+        File cloudSecureConnectBundleFile = null;
+
+        if (props.getBundle() == null) {
+            LOGGER.info("Loading bundle zip file from 'classpath:secure-connect-bundle.zip'");
+            try {
+                cloudSecureConnectBundleFile = ResourceUtils.getFile("classpath:secure-connect-bundle.zip");
+            } catch (FileNotFoundException e) {
+                throw new Error("Bundle not found in the 'resources' folder");
+            }
+        } else {
+            LOGGER.info("Loading bundle zip file from {}", props.getBundle());
+            cloudSecureConnectBundleFile = new File(props.getBundle());
+            if (!cloudSecureConnectBundleFile.exists()) {
+                throw new IllegalStateException("File '" + props.getBundle() + "' has not been found\n"
+                        + "To run this sample you need to download the secure bundle file from ASTRA WebPage\n"
+                        + "More info here:");
+            }
         }
 
         // Connect
         Cluster cluster = Cluster.builder().withCloudSecureConnectBundle(cloudSecureConnectBundleFile)
                 .withCredentials(props.getUsername(), props.getPassword()).build();
+
+        // Cluster cluster = Cluster.builder()
+        // .withCloudSecureConnectBundle(
+        // new
+        // FileInputStream(ResourceUtils.getFile("classpath:secure-connect-bundle.zip"))
+        // .withCredentials(props.getUsername(), props.getPassword()).build();
+
         LOGGER.info("[OK] cluster object created");
 
         return cluster;

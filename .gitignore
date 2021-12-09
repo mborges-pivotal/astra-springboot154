@@ -13,3 +13,4 @@ buildNumber.properties
 # Marcelo local properites
 **/application-local.properties
 **/.LCK*
+**/secure-connect-bundle.zip
