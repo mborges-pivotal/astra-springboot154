@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.convert.CassandraConverter;
@@ -51,19 +53,32 @@ public class AstraConfig {
     @Autowired
     private AstraProperties props;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     @Bean
     public Cluster cluster() {
 
         // Check the cloud zip file
 
         File cloudSecureConnectBundleFile = null;
+        Cluster cluster = null;
 
         if (props.getBundle() == null) {
             LOGGER.info("Loading bundle zip file from 'classpath:secure-connect-bundle.zip'");
             try {
-                cloudSecureConnectBundleFile = ResourceUtils.getFile("classpath:secure-connect-bundle.zip");
-            } catch (FileNotFoundException e) {
-                throw new Error("Bundle not found in the 'resources' folder");
+                // cloudSecureConnectBundleFile =
+                // ResourceUtils.getFile("classpath:secure-connect-bundle.zip");
+
+                Resource resource = resourceLoader.getResource("classpath:secure-connect-bundle.zip");
+                InputStream inputStream = resource.getInputStream();
+
+                // Connect
+                cluster = Cluster.builder().withCloudSecureConnectBundle(inputStream)
+                        .withCredentials(props.getUsername(), props.getPassword()).build();
+
+            } catch (Exception e) {
+                throw new Error("Bundle not found in the 'resources' folder", e);
             }
         } else {
             LOGGER.info("Loading bundle zip file from {}", props.getBundle());
@@ -73,20 +88,14 @@ public class AstraConfig {
                         + "To run this sample you need to download the secure bundle file from ASTRA WebPage\n"
                         + "More info here:");
             }
+
+            // Connect
+            cluster = Cluster.builder().withCloudSecureConnectBundle(cloudSecureConnectBundleFile)
+                    .withCredentials(props.getUsername(), props.getPassword()).build();
+
         }
 
-        // Connect
-        Cluster cluster = Cluster.builder().withCloudSecureConnectBundle(cloudSecureConnectBundleFile)
-                .withCredentials(props.getUsername(), props.getPassword()).build();
-
-        // Cluster cluster = Cluster.builder()
-        // .withCloudSecureConnectBundle(
-        // new
-        // FileInputStream(ResourceUtils.getFile("classpath:secure-connect-bundle.zip"))
-        // .withCredentials(props.getUsername(), props.getPassword()).build();
-
         LOGGER.info("[OK] cluster object created");
-
         return cluster;
     }
 
