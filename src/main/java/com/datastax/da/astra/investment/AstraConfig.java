@@ -10,8 +10,10 @@ import com.datastax.driver.core.Cluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 // import org.springframework.core.io.Resource;
 // import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.cassandra.config.CassandraSessionFactoryBean;
@@ -53,8 +55,8 @@ public class AstraConfig {
     @Autowired
     private AstraProperties props;
 
-    // @Autowired
-    // private ResourceLoader resourceLoader;
+    @Value("classpath:secure-connect-bundle.zip")
+    Resource bundleFile;
 
     @Bean
     public Cluster cluster() {
@@ -67,23 +69,14 @@ public class AstraConfig {
         if (props.getBundle() == null) {
             LOGGER.info("Loading bundle zip file from 'classpath:secure-connect-bundle.zip'");
             try {
-                // cloudSecureConnectBundleFile =
-                // ResourceUtils.getFile("classpath:secure-connect-bundle.zip");
-
-                // Resource resource = resourceLoader.getResource("classpath:secure-connect-bundle.zip");
-                // InputStream inputStream = resource.getInputStream();
-
-                InputStream stream = this.getClass().getClassLoader().getResourceAsStream("secure-connect-bundle.zip");
-                if (stream == null) {
-                    new Error("Bundle inputstream is null - Maybe it was not found in the 'resources' folder");
-                }
-
+                InputStream stream = bundleFile.getInputStream();
+                
                 // Connect
                 cluster = Cluster.builder().withCloudSecureConnectBundle(stream)
                         .withCredentials(props.getUsername(), props.getPassword()).build();
 
             } catch (Exception e) {
-                throw new Error("Bundle not found in the 'resources' folder", e);
+                throw new Error("Problem connecting by loading Bundle from the 'resources' folder", e);
             }
         } else {
             LOGGER.info("Loading bundle zip file from {}", props.getBundle());
