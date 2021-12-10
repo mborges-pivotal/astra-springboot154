@@ -1,8 +1,6 @@
 package com.datastax.da.astra.investment;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import com.datastax.driver.core.Cluster;
@@ -63,11 +61,10 @@ public class AstraConfig {
 
         // Check the cloud zip file
 
-        File cloudSecureConnectBundleFile = null;
         Cluster cluster = null;
 
         if (props.getBundle() == null) {
-            LOGGER.info("Loading bundle zip file from 'classpath:secure-connect-bundle.zip'");
+            LOGGER.info("[2] Loading bundle zip file from 'classpath:secure-connect-bundle.zip'");
             try {
                 InputStream stream = bundleFile.getInputStream();
                 
@@ -80,7 +77,7 @@ public class AstraConfig {
             }
         } else {
             LOGGER.info("Loading bundle zip file from {}", props.getBundle());
-            cloudSecureConnectBundleFile = new File(props.getBundle());
+            File cloudSecureConnectBundleFile = new File(props.getBundle());
             if (!cloudSecureConnectBundleFile.exists()) {
                 throw new IllegalStateException("File '" + props.getBundle() + "' has not been found\n"
                         + "To run this sample you need to download the secure bundle file from ASTRA WebPage\n"

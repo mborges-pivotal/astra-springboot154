@@ -19,3 +19,20 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 
 # Running
 # docker run -p 8080:8080 mborges/astra-springboot154
+
+# Loadingg image to kind
+# kind load docker-image mborges/astra-springboot154 --name concourse
+# docker exec -it concourse-control-plane crictl images
+
+
+# docker {
+# 	name "${project.jar.baseName}:${project.jar.version}"
+# 	dockerfile "${projectDir}${project.ext.properties.dockerfileDir?:'/src/main/docker/Dockerfile'}"
+# 	files([
+# 			"${buildDir}/libs/${project.jar.baseName}-${project.jar.version}.jar",
+# 			"${projectDir}/src/main/resources/secure-connect-bundle.zip" 
+# 	])
+# 	buildArgs([
+# 			ARTIFACT_NAME: "${project.jar.baseName}-${project.jar.version}.jar"
+# 	])
+# }
