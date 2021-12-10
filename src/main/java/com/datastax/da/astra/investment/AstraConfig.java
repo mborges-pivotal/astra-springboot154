@@ -1,7 +1,10 @@
 package com.datastax.da.astra.investment;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 import com.datastax.driver.core.Cluster;
 
@@ -56,6 +59,9 @@ public class AstraConfig {
     @Value("classpath:secure-connect-bundle.zip")
     Resource bundleFile;
 
+    @Value("classpath:application.properties")
+    Resource propertiesFile;
+
     @Bean
     public Cluster cluster() {
 
@@ -66,6 +72,11 @@ public class AstraConfig {
         if (props.getBundle() == null) {
             LOGGER.info("[2] Loading bundle zip file from 'classpath:secure-connect-bundle.zip'");
             try {
+
+                InputStream testStream = propertiesFile.getInputStream();
+                String result = new BufferedReader(new InputStreamReader(testStream)).lines().parallel().collect(Collectors.joining("\n"));
+                LOGGER.info("application.properties {}", result);
+
                 InputStream stream = bundleFile.getInputStream();
                 
                 // Connect
