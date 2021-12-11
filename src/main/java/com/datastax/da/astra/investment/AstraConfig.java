@@ -1,12 +1,22 @@
 package com.datastax.da.astra.investment;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import com.datastax.driver.core.Cluster;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParser;
+
+import com.google.common.io.ByteStreams;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,11 +84,14 @@ public class AstraConfig {
             try {
 
                 InputStream testStream = propertiesFile.getInputStream();
-                String result = new BufferedReader(new InputStreamReader(testStream)).lines().parallel().collect(Collectors.joining("\n"));
+                String result = new BufferedReader(new InputStreamReader(testStream)).lines().parallel()
+                        .collect(Collectors.joining("\n"));
                 LOGGER.info("application.properties {}", result);
 
                 InputStream stream = bundleFile.getInputStream();
-                
+                createCloudConfig(stream);
+                stream = bundleFile.getInputStream();
+
                 // Connect
                 cluster = Cluster.builder().withCloudSecureConnectBundle(stream)
                         .withCredentials(props.getUsername(), props.getPassword()).build();
@@ -135,6 +148,43 @@ public class AstraConfig {
     @Bean
     public CassandraConverter converter() {
         return new MappingCassandraConverter(mappingContext());
+    }
+
+
+    ///////////////////
+    
+    // The purpose of is test the driver piece of code that is failing
+    private void createCloudConfig(InputStream cloudConfig)
+            throws IOException, GeneralSecurityException {
+                
+        JsonNode configJson = null;
+        ByteArrayOutputStream keyStoreOutputStream = null;
+        ByteArrayOutputStream trustStoreOutputStream = null;
+        ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+        ZipInputStream zipInputStream = null;
+        try {
+            zipInputStream = new ZipInputStream(cloudConfig);
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                String fileName = entry.getName();
+                if (fileName.equals("config.json")) {
+                    configJson = mapper.readTree(zipInputStream);
+                    LOGGER.info("found config.json");
+                } else if (fileName.equals("identity.jks")) {
+                    keyStoreOutputStream = new ByteArrayOutputStream();
+                    ByteStreams.copy(zipInputStream, keyStoreOutputStream);
+                    LOGGER.info("found identity.jks");
+                } else if (fileName.equals("trustStore.jks")) {
+                    trustStoreOutputStream = new ByteArrayOutputStream();
+                    ByteStreams.copy(zipInputStream, trustStoreOutputStream);
+                    LOGGER.info("found trustStore.jks");
+                }
+            }
+        } finally {
+            if (zipInputStream != null) {
+                zipInputStream.close();
+            }
+        }
     }
 
 }
